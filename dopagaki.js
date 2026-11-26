@@ -1,16 +1,16 @@
-(function(Scratch) {
+/* TACT-AIM Kill Effect — paste into TurboWarp Packager's Custom JavaScript.
+ * Silent Pen effect timed to Gun game 25.5 (project 625842821) at 30 fps.
+ */
+(() => {
     "use strict";
 
-    if (!Scratch.extensions.unsandboxed) {
-        throw new Error("TACT-AIM Kill Effect must be run unsandboxed.");
-    }
-
-    const vm = Scratch.vm;
+    const vm = window.vm;
     const runtime = vm?.runtime;
     const renderer = vm?.renderer;
     const installed = Symbol.for("tactAim.killEffectPen");
     if (!runtime?.on || typeof renderer?.createPenSkin !== "function" || runtime[installed]) return;
 
+    // Draw directly on our Pen skin so other mods' wrappers around the game's pen can coexist.
     const penMethods = Object.getPrototypeOf(renderer);
     const clearPen = penMethods.penClear ?? renderer.penClear;
     const drawLine = penMethods.penLine ?? renderer.penLine;
@@ -20,6 +20,7 @@
     const bounceFrames = Math.ceil(Math.log(1 / initialSpeed) / Math.log(damping));
     const sweepStep = 50;
 
+    // Rounded monoline lettering in its own coordinate system, centered on the stage.
     const letters = [
         {x: -118, strokes: [[0, -29, 0, 29], [3, 0, 42, 27], [3, 0, 42, -27]]},
         {x: -43, strokes: [[0, -29, 0, 29], [-8, 29, 8, 29], [-8, -29, 8, -29]]},
@@ -130,15 +131,4 @@
     runtime.on("PROJECT_STOP_ALL", reset);
     runtime.on("PROJECT_START", reset);
     observe();
-
-    class TactAimKillEffect {
-        getInfo() {
-            return {
-                id: "tactAimKillEffect",
-                name: "TACT-AIM Kill Effect",
-                blocks: []
-            };
-        }
-    }
-    Scratch.extensions.register(new TactAimKillEffect());
-})(Scratch);
+})();
